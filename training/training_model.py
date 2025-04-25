@@ -8,6 +8,12 @@ from pyspark.ml import Pipeline
 
 def load_data(spark, path):
     df = spark.read.csv(path, header=True, inferSchema=True, sep=';')
+    df = sanitize_column_names(df)
+    return df
+
+def sanitize_column_names(df):
+    for col in df.columns:
+        df = df.withColumnRenamed(col, col.strip('"'))
     return df
 
 def preprocess_data(df):
