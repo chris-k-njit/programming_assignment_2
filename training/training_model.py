@@ -7,7 +7,7 @@ from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from pyspark.ml import Pipeline
 
 def load_data(spark, path):
-    df = spark.read.csv(path, header=True, inferSchema=True)
+    df = spark.read.csv(path, header=True, inferSchema=True, sep=';')
     return df
 
 def preprocess_data(df):
