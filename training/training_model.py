@@ -45,6 +45,6 @@ if __name__ == "__main__":
     model = train_model(train_data)
     f1 = evaluate_model(model, val_data)
 
-    model.save("../trained_model")
+    model.save("trained_model")
 
     spark.stop()
