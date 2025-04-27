@@ -13,4 +13,4 @@ COPY . .
 # ENV PYTHONUNBUFFERED=1
 
 # Run your main training script (adjust the path if needed)
-CMD ["python", "app/training/training_model.py"]
+CMD ["python", "app/training/prediction_model.py"]
