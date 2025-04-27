@@ -8,8 +8,9 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY . .
 # Set environment variables (optional if needed)
 # ENV PYTHONUNBUFFERED=1
 
 # Run your main training script (adjust the path if needed)
-CMD ["python", "training/training_model.py"]
+CMD ["python", "app/training/training_model.py"]
