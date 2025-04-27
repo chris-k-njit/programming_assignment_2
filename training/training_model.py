@@ -36,8 +36,8 @@ def evaluate_model(model, df):
 if __name__ == "__main__":
     spark = SparkSession.builder.appName("WineQualityTrainer").getOrCreate()
 
-    train_df = load_data(spark, "s3a://ck-pa2-wine-quality-data/TrainingDataset.csv")
-    val_df = load_data(spark, "s3a://ck-pa2-wine-quality-data/ValidationDataset.csv")
+    train_df = load_data(spark, "../cs643_pa_2_christopherkeddell/data/TrainingDataset.csv")
+    val_df = load_data(spark, "../cs643_pa_2_christopherkeddell/data/ValidationDataset.csv")
 
     train_data = preprocess_data(train_df)
     val_data = preprocess_data(val_df)
