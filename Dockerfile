@@ -1,5 +1,18 @@
 # Use an official Python runtime as a parent image
-FROM python:3.10-slim
+FROM python:3.11-slim
+
+
+# Install Java (default-jdk = OpenJDK 17) + system dependencies
+RUN apt-get update && apt-get install -y \
+    default-jdk \
+    procps \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+# Set JAVA_HOME environment variable
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV PATH=$JAVA_HOME/bin:$PATH
+
 
 # Set working directory
 WORKDIR /app
@@ -13,4 +26,4 @@ COPY . .
 # ENV PYTHONUNBUFFERED=1
 
 # Run your main training script (adjust the path if needed)
-CMD ["python", "app/training/prediction_model.py"]
+CMD ["python", "training/prediction_model.py"]
