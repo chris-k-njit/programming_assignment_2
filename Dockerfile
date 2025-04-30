@@ -1,29 +1,18 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11-slim
+FROM openjdk:11
 
+# Set environment vars
+ENV PYSPARK_PYTHON=python3
+ENV PYSPARK_DRIVER_PYTHON=python3
 
-# Install Java (default-jdk = OpenJDK 17) + system dependencies
-RUN apt-get update && apt-get install -y \
-    default-jdk \
-    procps \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+# Install Python and dependencies
+RUN apt-get update && apt-get install -y python3 python3-pip && \
+    pip3 install pyspark numpy
 
-# Set JAVA_HOME environment variable
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-ENV PATH=$JAVA_HOME/bin:$PATH
-
-
-# Set working directory
+# Create working directory
 WORKDIR /app
 
-# Copy project files into the container
-COPY requirements.txt requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy project files
+COPY . /app
 
-COPY . .
-# Set environment variables (optional if needed)
-# ENV PYTHONUNBUFFERED=1
-
-# Run your main training script (adjust the path if needed)
-CMD ["python", "training/prediction_model.py"]
+# Default command
+CMD ["python3", "training/local_prediction.py"]
