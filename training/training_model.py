@@ -6,10 +6,10 @@ from pyspark.ml import Pipeline
 
 def load_data(spark, path):
     df = spark.read.option("header", True) \
+                   .option("inferSchema", True) \
                    .option("delimiter", ";") \
                    .option("quote", '"') \
                    .option("escape", '"') \
-                   .option("inferSchema", True) \
                    .csv(path)
     df = sanitize_column_names(df)
     df.printSchema()
@@ -44,8 +44,8 @@ def evaluate_model(model, df):
 if __name__ == "__main__":
     spark = SparkSession.builder.appName("WineQualityTrainer").getOrCreate()
 
-    train_df = load_data(spark, "../cs643_pa_2_christopherkeddell/data/TrainingDataset.csv")
-    val_df = load_data(spark, "../cs643_pa_2_christopherkeddell/data/ValidationDataset.csv")
+    train_df = load_data(spark, "data/TrainingDataset.csv")
+    val_df = load_data(spark, "data/ValidationDataset.csv")
 
     train_data = preprocess_data(train_df)
     val_data = preprocess_data(val_df)
@@ -53,6 +53,6 @@ if __name__ == "__main__":
     model = train_model(train_data)
     f1 = evaluate_model(model, val_data)
 
-    model.save("../training/trained_model")
+    model.save("training/trained_model")
 
     spark.stop()

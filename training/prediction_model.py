@@ -15,11 +15,11 @@ def main():
 
     # Load and sanitize validation dataset
     data = spark.read.option("header", True) \
+                     .option("inferSchema", True) \
                      .option("delimiter", ";") \
                      .option("quote", '"') \
                      .option("escape", '"') \
-                     .option("inferSchema", True) \
-                     .csv("app/data/ValidationDataset.csv")
+                     .csv("data/ValidationDataset.csv")
 
     data = sanitize_column_names(data)
     data.printSchema()
