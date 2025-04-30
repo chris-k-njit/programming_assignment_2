@@ -12,7 +12,7 @@ def main():
     model = LogisticRegressionModel.load("trained_model")
 
     # Load the validation data
-    data = spark.read.csv("data/ValidationDataset.csv", header=True, inferSchema=True, sep=";")
+    data = spark.read.csv("app/data/ValidationDataset.csv", header=True, inferSchema=True, sep=";")
 
     # Prepare the features (Assume all of the columns except 'quality' are features)
     feature_columns = [col for col in data.columns if col != 'quality']
