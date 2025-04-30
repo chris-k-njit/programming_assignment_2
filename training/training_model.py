@@ -1,5 +1,3 @@
-# training/training_model.py
-
 from pyspark.sql import SparkSession
 from pyspark.ml.classification import LogisticRegression
 from pyspark.ml.feature import VectorAssembler
@@ -7,13 +5,23 @@ from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from pyspark.ml import Pipeline
 
 def load_data(spark, path):
-    df = spark.read.csv(path, header=True, inferSchema=True, sep=';')
+    df = spark.read.option("header", True) \
+                   .option("delimiter", ";") \
+                   .option("quote", '"') \
+                   .option("escape", '"') \
+                   .option("inferSchema", True) \
+                   .csv(path)
     df = sanitize_column_names(df)
+    df.printSchema()
+    df.show(5)
     return df
 
 def sanitize_column_names(df):
+    # Remove all double quotes and strip surrounding whitespace
     for col in df.columns:
-        df = df.withColumnRenamed(col, col.strip('"'))
+        clean_col = col.replace('"', '').strip()
+        if clean_col != col:
+            df = df.withColumnRenamed(col, clean_col)
     return df
 
 def preprocess_data(df):
@@ -45,6 +53,6 @@ if __name__ == "__main__":
     model = train_model(train_data)
     f1 = evaluate_model(model, val_data)
 
-    model.save("trained_model")
+    model.save("../training/trained_model")
 
     spark.stop()

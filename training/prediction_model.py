@@ -1,40 +1,43 @@
 from pyspark.sql import SparkSession
 from pyspark.ml.classification import LogisticRegressionModel
+from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 
+def sanitize_column_names(df):
+    for col in df.columns:
+        clean_col = col.replace('"', '').strip()
+        if clean_col != col:
+            df = df.withColumnRenamed(col, clean_col)
+    return df
+
 def main():
-    # First, start the Spark Session
-    spark = SparkSession.builder \
-        .appName("WineQualityPrediction") \
-        .getOrCreate()
+    spark = SparkSession.builder.appName("WineQualityPrediction").getOrCreate()
 
-    # Next, load the pre-trained model
-    model = LogisticRegressionModel.load("trained_model")
+    # Load and sanitize validation dataset
+    data = spark.read.option("header", True) \
+                     .option("delimiter", ";") \
+                     .option("quote", '"') \
+                     .option("escape", '"') \
+                     .option("inferSchema", True) \
+                     .csv("app/data/ValidationDataset.csv")
 
-    # Load the validation data
-    data = spark.read.csv("app/data/ValidationDataset.csv", header=True, inferSchema=True, sep=";")
+    data = sanitize_column_names(data)
+    data.printSchema()
 
-    # Prepare the features (Assume all of the columns except 'quality' are features)
-    feature_columns = [col for col in data.columns if col != 'quality']
-
-    from pyspark.ml.feature import VectorAssembler
-    assembler = VectorAssembler(inputCols=feature_columns, outputCol="features")
-
+    # Prepare features
+    features = [col for col in data.columns if col != 'quality']
+    assembler = VectorAssembler(inputCols=features, outputCol="features")
     data_prepared = assembler.transform(data)
 
-    # Run the Predictions
+    # Load trained model
+    model = LogisticRegressionModel.load("training/trained_model")
+
+    # Run prediction and evaluate
     predictions = model.transform(data_prepared)
-
-    # Evaluate the F1 Score as needed
-    evaluator = MulticlassClassificationEvaluator(
-        labelCol="quality",
-        predictionCol="prediction",
-        metricName="f1"
-    )
-
+    evaluator = MulticlassClassificationEvaluator(labelCol="quality", predictionCol="prediction", metricName="f1")
     f1_score = evaluator.evaluate(predictions)
 
-    print(f"\n✅ Prediction Complete — F1 Score: {f1_score:.4f}\n")
+    print(f"F1 Score: {f1_score:.4f}")
 
     spark.stop()
 
