@@ -6,23 +6,22 @@ from pyspark.ml import Pipeline
 
 def load_data(spark, path):
     df = spark.read.option("header", True) \
-                   .option("inferSchema", True) \
                    .option("delimiter", ";") \
-                   .option("quote", '"') \
-                   .option("escape", '"') \
-                   .csv(path)
+                   .option("inferSchema", True) \
+                   .csv("data/ValidationDataset.csv") = path
     df = sanitize_column_names(df)
     df.printSchema()
     df.show(5)
     return df
 
 def sanitize_column_names(df):
-    # Remove all double quotes and strip surrounding whitespace
+    import re
+    renamed_df = df
     for col in df.columns:
-        clean_col = col.replace('"', '').strip()
-        if clean_col != col:
-            df = df.withColumnRenamed(col, clean_col)
-    return df
+        # Remove all quotes and leading/trailing whitespace
+        clean_col = re.sub(r'["“”]', '', col).strip()
+        renamed_df = renamed_df.withColumnRenamed(col, clean_col)
+    return renamed_df
 
 def preprocess_data(df):
     features = [col for col in df.columns if col != 'quality']
